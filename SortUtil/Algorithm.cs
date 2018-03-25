@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace SortUtil
 {
     /// <summary>
-    /// Class gives one static methodto sort jagged array
+    /// Class gives one static method to sort jagged array
     /// </summary>
     public static class Algorithm
     {
@@ -49,33 +49,56 @@ namespace SortUtil
         /// </param>
         private static void BubbleSort(int[][] array, IComparer<int[]> comp)
         {
-            int numberOfNulls = 0;
-            for (int j = 0; j < array.Length - numberOfNulls; j++)
-            {
-                if (array[j] == null)
-                {
-                    Swap(ref array[j], ref array[array.Length-1-numberOfNulls]);
-                    numberOfNulls++;
-                }
-            }
+            int lengthWithoutNulls = array.Length;
+
+            NullExclusion(array, ref lengthWithoutNulls);
 
             int i = 0;
-            bool t = true;
-            int n = array.Length - numberOfNulls;
+            bool isSorted = true;
 
-            while (t)
+            while (isSorted)
             {
-                t = false;
-                for (int j = 0; j < n - i - 1; j++)
+                isSorted = false;
+                for (int j = 0; j < lengthWithoutNulls - i - 1; j++)
                 {
                     if (comp.Compare(array[j], array[j + 1]) > 0)
                     {
                         Swap(ref array[j], ref array[j + 1]);
-                        t = true;
+                        isSorted = true;
                     }
                 }
 
                 i++;
+            }
+        }
+
+        /// <summary>
+        /// Method puts all null subarrays to the end of jagged array
+        /// </summary>
+        /// <param name="array">
+        /// Initial array
+        /// </param>
+        /// <param name="lengthWithoutNulls">
+        /// Length of array without elements which are null
+        /// </param>
+        private static void NullExclusion(int[][] array, ref int lengthWithoutNulls)
+        {
+            for (int j = 0; j < lengthWithoutNulls; j++)
+            {
+                if (array[j] == null && array[lengthWithoutNulls - 1] != null)
+                {
+                    Swap(ref array[j], ref array[lengthWithoutNulls - 1]);
+                    lengthWithoutNulls--;
+                }
+                else
+                {
+                    while (array[lengthWithoutNulls - 1] == null && lengthWithoutNulls > j)
+                    {
+                        lengthWithoutNulls--;
+                    }
+
+                    Swap(ref array[j], ref array[lengthWithoutNulls - 1]);
+                }
             }
         }
 

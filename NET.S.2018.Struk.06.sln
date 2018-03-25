@@ -3,7 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2005
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SortUtil", "SortUtil\SortUtil.csproj", "{0479C453-6ADD-4450-8F20-72BF9DC3D761}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SortUtil.Tests", "SortUtil.Tests\SortUtil.Tests.csproj", "{2FB5022D-BB98-4D15-BC52-B136DFF2C658}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0479C453-6ADD-4450-8F20-72BF9DC3D761}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0479C453-6ADD-4450-8F20-72BF9DC3D761}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0479C453-6ADD-4450-8F20-72BF9DC3D761}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0479C453-6ADD-4450-8F20-72BF9DC3D761}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FB5022D-BB98-4D15-BC52-B136DFF2C658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FB5022D-BB98-4D15-BC52-B136DFF2C658}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FB5022D-BB98-4D15-BC52-B136DFF2C658}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FB5022D-BB98-4D15-BC52-B136DFF2C658}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

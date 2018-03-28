@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Text;
 
 namespace ImmutableType
@@ -7,37 +8,91 @@ namespace ImmutableType
     {
         #region Fields and properties
 
-        private double[] arrayOfCoefficients { get; set; }
-
+        private double[] ArrayOfCoefficients { get; }
+        private int degree { get; }
+        private static double accuracy { get; }
+        
         #endregion
         
         #region Constructions
 
         public Polynom() : this(Array.Empty<double>()) { }
-
-        public Polynom(double[] array)
+        
+        public Polynom(double[] array) //DON'T FORGET TO REWRITE IT WITH PARAMS!!!1!1
         {
-            arrayOfCoefficients = array;
+            ArrayOfCoefficients = new double[array.Length];
+            for (int i = 0; i < array.Length; i++)
+            {
+                ArrayOfCoefficients[i] = array[i];
+            }
+
+            int index = ArrayOfCoefficients.Length - 1;
+            while (ArrayOfCoefficients[index] == 0 && index >= 0)
+            {
+                index--;
+            }
+
+            degree = index;
+        }
+
+        static Polynom()
+        {
+            string str = ConfigurationManager.AppSettings.Get("Accuracy");
+
+            try
+            {
+                accuracy = Double.Parse(str);
+            }
+            catch (Exception e)
+            {
+                accuracy = 0.000001;
+            }
         }
 
         #endregion
+
+        #region API
+
+        public bool Equals(Polynom polynom)
+        {
+            if (polynom == null || polynom.GetType() != typeof(Polynom) ||
+                ArrayOfCoefficients.Length != polynom.ArrayOfCoefficients.Length)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, polynom))
+            {
+                return true;
+            }
+
+            for (int i = 0; i < ArrayOfCoefficients.Length; i++)
+            {
+                if (ArrayOfCoefficients[i] - polynom.ArrayOfCoefficients[i] > accuracy)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         #region Overrided object's methods
 
         public override string ToString()
         {
-            if (arrayOfCoefficients == null)
+            if (ArrayOfCoefficients == null)
             {
-                throw new ArgumentNullException(nameof(arrayOfCoefficients));
+                throw new ArgumentNullException(nameof(ArrayOfCoefficients));
             }
 
             StringBuilder returnString = new StringBuilder();
-            returnString.Append($"({arrayOfCoefficients[0]})");
-            for (int i = 1; i < arrayOfCoefficients.Length; i++)
+            returnString.Append($"({ArrayOfCoefficients[0]})");
+            for (int i = 1; i < ArrayOfCoefficients.Length; i++)
             {
-                returnString.Append($" + ({arrayOfCoefficients[i]})x^{i}");
+                returnString.Append($" + ({ArrayOfCoefficients[i]})x^{i}");
             }
-            
+
             return returnString.ToString();
         }
 
@@ -48,27 +103,19 @@ namespace ImmutableType
                 return false;
             }
 
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
             Polynom comparePolynom = obj as Polynom;
 
-            if ((object)comparePolynom == null)
+            if (comparePolynom == null)
             {
                 return false;
             }
 
-            if (arrayOfCoefficients.Length != comparePolynom.arrayOfCoefficients.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < this.arrayOfCoefficients.Length; i++)
-            {
-                if (arrayOfCoefficients[i].CompareTo(comparePolynom.arrayOfCoefficients[i]) != 0)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return Equals(comparePolynom);
         }
 
         public override int GetHashCode()
@@ -78,106 +125,18 @@ namespace ImmutableType
 
         #endregion
 
-        #region Overloaded operations
-
-        private static Polynom Add(Polynom left, Polynom right)
-        {
-            double[] returnArray = new double[Math.Max(left.arrayOfCoefficients.Length, right.arrayOfCoefficients.Length)];
-            int indexOfSmallerArray;
-            double[] biggerArray;
-            double[] smallerArray;
-
-            if (right.arrayOfCoefficients.Length < left.arrayOfCoefficients.Length)
-            {
-                indexOfSmallerArray = right.arrayOfCoefficients.Length - 1;
-                biggerArray = left.arrayOfCoefficients;
-                smallerArray = right.arrayOfCoefficients;
-            }
-            else
-            {
-                indexOfSmallerArray = left.arrayOfCoefficients.Length - 1;
-                biggerArray = right.arrayOfCoefficients;
-                smallerArray = left.arrayOfCoefficients;
-            }
-
-            for (int i = 0; i < returnArray.Length; i++)
-            {
-                while (indexOfSmallerArray < smallerArray.Length)
-                {
-                    returnArray[i] = left.arrayOfCoefficients[i] + right.arrayOfCoefficients[i];
-                    indexOfSmallerArray++;
-                }
-
-                returnArray[i] += biggerArray[i];
-            }
-
-            return new Polynom(returnArray);
-        }
-
-        private static Polynom Substruct(Polynom left, Polynom right)
-        {
-            double[] returnArray = new double[Math.Max(left.arrayOfCoefficients.Length, right.arrayOfCoefficients.Length)];
-            int indexOfSmallerArray;
-            double[] biggerArray;
-            double[] smallerArray;
-
-            if (right.arrayOfCoefficients.Length < left.arrayOfCoefficients.Length)
-            {
-                indexOfSmallerArray = right.arrayOfCoefficients.Length - 1;
-                biggerArray = left.arrayOfCoefficients;
-                smallerArray = right.arrayOfCoefficients;
-            }
-            else
-            {
-                indexOfSmallerArray = left.arrayOfCoefficients.Length - 1;
-                biggerArray = right.arrayOfCoefficients;
-                smallerArray = left.arrayOfCoefficients;
-            }
-
-            for (int i = 0; i < returnArray.Length; i++)
-            {
-                while (indexOfSmallerArray < smallerArray.Length)
-                {
-                    returnArray[i] = left.arrayOfCoefficients[i] - right.arrayOfCoefficients[i];
-                    indexOfSmallerArray++;
-                }
-
-                returnArray[i] -= biggerArray[i];
-            }
-
-            return new Polynom(returnArray);
-        }
-
-        private static Polynom Multiply(Polynom left, Polynom right)
-        {
-            double[] returnArray = new double[left.arrayOfCoefficients.Length+right.arrayOfCoefficients.Length-1];
-
-            for (int i = 0; i < left.arrayOfCoefficients.Length; i++)
-            {
-                for (int j = 0; j < right.arrayOfCoefficients.Length; j++)
-                {
-                    returnArray[i + j] += left.arrayOfCoefficients[i] * right.arrayOfCoefficients[j];
-                }
-            }
-
-            return new Polynom(returnArray);
-        }
-
-        private static Polynom Devide(Polynom left, double value)
-        {
-            double[] returnArray = new double[left.arrayOfCoefficients.Length];
-
-            for (int i = 0; i < returnArray.Length; i++)
-            {
-                returnArray[i] = left.arrayOfCoefficients[i] / value;
-            }
-
-            return new Polynom(returnArray);
-        }
-
-        #endregion
-
         #region Overloaded operators
+
+        public static Polynom operator -(Polynom polynom)
+        {
+            double[] newArray = new double[polynom.ArrayOfCoefficients.Length];
+            for (int i = 0; i < newArray.Length; i++)
+            {
+                newArray[i] = -polynom.ArrayOfCoefficients[i];
+            }
+
+            return new Polynom(newArray);
+        }
 
         public static Polynom operator +(Polynom left, Polynom right)
         {
@@ -191,12 +150,12 @@ namespace ImmutableType
                 throw new ArgumentNullException(nameof(right));
             }
 
-            if (left.arrayOfCoefficients.Length == 0)
+            if (left.ArrayOfCoefficients.Length == 0)
             {
                 return right;
             }
 
-            if (right.arrayOfCoefficients.Length == 0)
+            if (right.ArrayOfCoefficients.Length == 0)
             {
                 return left;
             }
@@ -216,12 +175,12 @@ namespace ImmutableType
                 throw new ArgumentNullException(nameof(right));
             }
 
-            if (left.arrayOfCoefficients.Length == 0)
+            if (left.ArrayOfCoefficients.Length == 0)
             {
                 return right;
             }
 
-            if (right.arrayOfCoefficients.Length == 0)
+            if (right.ArrayOfCoefficients.Length == 0)
             {
                 return left;
             }
@@ -241,12 +200,12 @@ namespace ImmutableType
                 throw new ArgumentNullException(nameof(right));
             }
 
-            if (left.arrayOfCoefficients.Length == 0)
+            if (left.ArrayOfCoefficients.Length == 0)
             {
                 return right;
             }
 
-            if (right.arrayOfCoefficients.Length == 0)
+            if (right.ArrayOfCoefficients.Length == 0)
             {
                 return left;
             }
@@ -261,7 +220,7 @@ namespace ImmutableType
                 throw new ArgumentNullException(nameof(left));
             }
 
-            if (left.arrayOfCoefficients.Length == 0)
+            if (left.ArrayOfCoefficients.Length == 0)
             {
                 return left;
             }
@@ -274,6 +233,104 @@ namespace ImmutableType
             return Devide(left, right);
         }
 
+        //public static bool operator ==(Polynom left, Polynom right)
+        //{
+        //    if (left == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(left));
+        //    }
+
+        //    if (right == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(right));
+        //    }
+
+        //    if (ReferenceEquals(left,right))
+        //    {
+        //        return true;
+        //    }
+
+        //    return left.Equals(right);
+        //}
+
+        //public static bool operator !=(Polynom left, Polynom right)
+        //{
+        //    return !left.Equals(right);
+        //}
+
         #endregion
+
+        #endregion
+        
+        #region Overloaded Methods
+
+        private static Polynom Add(Polynom left, Polynom right)
+        {
+            double[] returnArray = new double[Math.Max(left.ArrayOfCoefficients.Length, right.ArrayOfCoefficients.Length)];
+            int indexOfSmallerArray;
+            double[] biggerArray;
+            double[] smallerArray;
+
+            if (right.ArrayOfCoefficients.Length < left.ArrayOfCoefficients.Length)
+            {
+                indexOfSmallerArray = right.ArrayOfCoefficients.Length - 1;
+                biggerArray = left.ArrayOfCoefficients;
+                smallerArray = right.ArrayOfCoefficients;
+            }
+            else
+            {
+                indexOfSmallerArray = left.ArrayOfCoefficients.Length - 1;
+                biggerArray = right.ArrayOfCoefficients;
+                smallerArray = left.ArrayOfCoefficients;
+            }
+
+            for (int i = 0; i < returnArray.Length; i++)
+            {
+                while (i <= indexOfSmallerArray)
+                {
+                    returnArray[i] = left.ArrayOfCoefficients[i] + right.ArrayOfCoefficients[i];
+                    i++;
+                }
+
+                returnArray[i] += biggerArray[i];
+            }
+
+            return new Polynom(returnArray);
+        }
+
+        private static Polynom Substruct(Polynom left, Polynom right)
+        {
+            return Add(left, -right);
+        }
+
+        private static Polynom Multiply(Polynom left, Polynom right)
+        {
+            double[] returnArray = new double[left.ArrayOfCoefficients.Length+right.ArrayOfCoefficients.Length-1];
+
+            for (int i = 0; i < left.ArrayOfCoefficients.Length; i++)
+            {
+                for (int j = 0; j < right.ArrayOfCoefficients.Length; j++)
+                {
+                    returnArray[i + j] += left.ArrayOfCoefficients[i] * right.ArrayOfCoefficients[j];
+                }
+            }
+
+            return new Polynom(returnArray);
+        }
+
+        private static Polynom Devide(Polynom left, double value)
+        {
+            double[] returnArray = new double[left.ArrayOfCoefficients.Length];
+
+            for (int i = 0; i < returnArray.Length; i++)
+            {
+                returnArray[i] = left.ArrayOfCoefficients[i] / value;
+            }
+
+            return new Polynom(returnArray);
+        }
+
+        #endregion
+        
     }
 }

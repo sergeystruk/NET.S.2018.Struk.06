@@ -8,7 +8,7 @@ namespace ImmutableType
     {
         #region Fields and properties
 
-        private double[] ArrayOfCoefficients { get; }
+        private double[] ArrayOfCoefficients { get; }  //DON'T FORGET TO REWRITE WITH C# 7.2 FEATURE (REF READONLY)
         private int degree { get; }
         private static double accuracy { get; }
         
